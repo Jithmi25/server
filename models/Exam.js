@@ -1,40 +1,26 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const filePath = path.join(__dirname, '../data/exams.json');
+const SubjectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  code: { type: String, required: true },
+  department: { type: String, required: true },
+  studentCount: { type: Number, required: true },
+  repeaters: { type: Number, required: true },
+  assignedHall: { type: String }, 
+  assignedSupervisor: { type: String }, 
+  assignedInvigilator: { type: String } 
+});
 
-//read exams
-function getAllExams() {
-  if (!fs.existsSync(filePath)) return [];
-  const data = fs.readFileSync(filePath);
-  return JSON.parse(data);
-}
+const ExamSchema = new mongoose.Schema({
+  date: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  subjects: [SubjectSchema],
+  status: {
+    type: String,
+    enum: ['Open', 'Locked', 'Finished'],
+    default: 'Open'
+  }
+});
 
-//save
-function saveExams(data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-}
-
-// new
-function createExam(exam) {
-  const exams = getAllExams();
-  exam.id = Date.now().toString(); 
-  exam.status = exam.status || 'Open';
-  exams.push(exam);
-  saveExams(exams);
-  return exam;
-}
-
-// filter
-function findExams(filterFn) {
-  const exams = getAllExams();
-  return exams.filter(filterFn);
-}
-
-module.exports = {
-  getAllExams,
-  createExam,
-  updateExam,
-  deleteExam,
-  findExams
-};
+module.exports = mongoose.model('Exam', ExamSchema);

@@ -1,38 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const filePath = path.join(__dirname, '../data/overrideLogs.json');
+const OverrideLogSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  action: String,
+  target: String,
+  targetId: String,
+  timestamp: { type: Date, default: Date.now },
+  details: mongoose.Schema.Types.Mixed
+});
 
-// get
-function getAllLogs() {
-  if (!fs.existsSync(filePath)) return [];
-  const data = fs.readFileSync(filePath);
-  return JSON.parse(data);
-}
-
-function saveLogs(logs) {
-  fs.writeFileSync(filePath, JSON.stringify(logs, null, 2));
-}
-
-function addOverrideLog({ user, action, target, targetId, details }) {
-  const logs = getAllLogs();
-
-  const newLog = {
-    id: Date.now().toString(),
-    user,
-    action,
-    target,
-    targetId,
-    timestamp: new Date().toISOString(),
-    details
-  };
-
-  logs.push(newLog);
-  saveLogs(logs);
-  return newLog;
-}
-
-module.exports = {
-  getAllLogs,
-  addOverrideLog
-};
+module.exports = mongoose.model('OverrideLog', OverrideLogSchema);

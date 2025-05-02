@@ -1,61 +1,35 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const filePath = path.join(__dirname, '../data/lecturers.json');
+const LecturerSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  department: { type: String, required: true },
+  rank: {
+    type: String,
+    enum: [
+      'Professor',
+      'Senior Lecturer Gr (I)',
+      'Senior Lecturer Gr (II)',
+      'Lecturer',
+      'Lecturer (Unconfirmed)',
+      'Lecturer (Probationary)',
+      'Lab Attendant (Grade III)',
+      '-'
+    ],
+    default: '-',
+    required: true
+  },
+  availability: [
+    {
+      date: String,
+      startTime: String,
+      endTime: String
+    }
+  ],
+  dutyCount: {
+    type: Number,
+    default: 0
+  }
+});
 
-//get lecturers
-function getAllLecturers() {
-  if (!fs.existsSync(filePath)) return [];
-  const data = fs.readFileSync(filePath);
-  return JSON.parse(data);
-}
-
-// Save lecturers
-function saveLecturers(lecturers) {
-  fs.writeFileSync(filePath, JSON.stringify(lecturers, null, 2));
-}
-
-// add lecturer
-function createLecturer(lecturerData) {
-  const lecturers = getAllLecturers();
-
-  const exists = lecturers.find(l => l.email === lecturerData.email);
-  if (exists) throw new Error('Lecturer with this email already exists.');
-
-  const newLecturer = {
-    id: Date.now().toString(),
-    name: lecturerData.name,
-    email: lecturerData.email,
-    department: lecturerData.department,
-    rank: lecturerData.rank || '-',
-    availability: [],
-    dutyCount: 0
-  };
-
-  lecturers.push(newLecturer);
-  saveLecturers(lecturers);
-  return newLecturer;
-}
-
-// availability
-function setAvailability(lecturerId, availability) {
-  const lecturers = getAllLecturers();
-  const index = lecturers.findIndex(l => l.id === lecturerId);
-  if (index === -1) throw new Error('Lecturer not found');
-
-  lecturers[index].availability = availability;
-  saveLecturers(lecturers);
-  return lecturers[index];
-}
-
-// Find
-function findLecturerById(id) {
-  return getAllLecturers().find(l => l.id === id);
-}
-
-module.exports = {
-  getAllLecturers,
-  createLecturer,
-  setAvailability,
-  findLecturerById
-};
+module.exports = mongoose.model('Lecturer', LecturerSchema);
