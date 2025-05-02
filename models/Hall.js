@@ -16,3 +16,4 @@ const HallSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Hall', HallSchema);
+
