@@ -1,46 +1,14 @@
 const mongoose = require('mongoose');
 
-const AssignmentRequestSchema = new mongoose.Schema({
-  examId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Exam', 
-    required: true
-  },
-  subjectCode: {
-    type: String,
-    required: true 
-  },
+const assignmentRequestSchema = new mongoose.Schema({
+  examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam' },
+  requestedLecturer: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
   timeSlot: {
-    date: {
-      type: String,
-      required: true 
-    },
-    startTime: {
-      type: String,
-      required: true 
-    },
-    endTime: {
-      type: String,
-      required: true 
-    }
+    date: Date,
+    startTime: String,
+    endTime: String,
   },
-  requestedLecturer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lecturer', 
-    required: true 
-  },
-  role: {
-    type: String,
-    enum: ['Supervisor', 'Invigilator'],
-    required: true ,
-  },
-  status: {
-    type: String,
-    enum: ['Pending', 'Accepted', 'Rejected'],
-    default: 'Pending'
-  }
-}, {
-  timestamps: true 
+  status: { type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending' },
 });
 
-module.exports = mongoose.model('AssignmentRequest', AssignmentRequestSchema);
+module.exports = mongoose.model('AssignmentRequest', assignmentRequestSchema);
